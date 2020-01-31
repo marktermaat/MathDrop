@@ -1,0 +1,12 @@
+- Betere glijdende schaal van moeilijkheid.
+- Highscores
+- 'Level X' sign when entering a new level
+- Increasing speed during a level, setting it lower at the start of the next level
+
++/- up to 20
+Counting with tens (+/- 10)
+Multiplication of 2 * [0-5]
+Multiplication of 3 * [0-5]
+Multiplication of 4 * [0-5]
+Multiplication of 5 * [0-5]
+Multiplication of 10 * [0-5]

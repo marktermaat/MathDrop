@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Math;
 using UnityEngine;
@@ -12,7 +13,7 @@ public class GameManagerScript : MonoBehaviour
     private const int NrColumns = 5;
     private const int MaxDropsInColumn = 4;
     private const int BaseHeight = -1;
-    private const int InitialSpeed = -20;
+    private const int InitialSpeed = -18;
     private const float DropWidth = 0.8f;
 
     private GameObject _drop;
@@ -22,6 +23,8 @@ public class GameManagerScript : MonoBehaviour
     private readonly Random _rand = new Random();
     private int _points = 0;
     private Text _pointsObject;
+    private Text _currentAnswerObject;
+    private Text _levelIndicatorObject;
     private int _column;
     private bool _dropping;
     
@@ -29,7 +32,11 @@ public class GameManagerScript : MonoBehaviour
     void Start()
     {
         _pointsObject = GameObject.Find("Points").GetComponent<Text>();
+        _currentAnswerObject = GameObject.Find("Current answer").GetComponent<Text>();
+        _levelIndicatorObject = GameObject.Find("Level indicator").GetComponent<Text>();
+        
         StartCoroutine(SpawnDrop());
+        ShowLevel();
     }
 
     // Update is called once per frame
@@ -38,6 +45,7 @@ public class GameManagerScript : MonoBehaviour
         if (_dropping && _formula.CorrectAnswerGiven())
         {
             DestroyDrop();
+            ShowLevel();
         }
 
         if (_dropping && _drop.transform.position.y <= ColumnToY(_column))
@@ -90,7 +98,7 @@ public class GameManagerScript : MonoBehaviour
         if (!IfFull())
         {
             _column = PickColumn();
-            _formula = new Formula();
+            _formula = CreateFormula();
             _drop = Instantiate(DropPrefab, new Vector3(ColumnToX(_column), 4, 0), Quaternion.identity);
             _drop.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, InitialSpeed));
             _drop.GetComponent<TextMesh>().text = _formula.Equation;
@@ -133,6 +141,28 @@ public class GameManagerScript : MonoBehaviour
     public void ButtonClick(int number)
     {
         _formula.AddInput(number);
-        _drop.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, InitialSpeed));
+    }
+
+    private Formula CreateFormula()
+    {
+        var formula = new Formula(_points, _currentAnswerObject);
+        return formula;
+    }
+
+    private void ShowLevel()
+    {
+        var levelPoints = new int[] {0, 20, 40, 60, 80, 100, 120};
+        var level = Array.IndexOf(levelPoints, _points);
+        if (level >= 0)
+        {
+            _levelIndicatorObject.text = $"Level {level}";
+            StartCoroutine(ClearLevelIndicator());
+        }
+    }
+    
+    private IEnumerator ClearLevelIndicator()
+    {
+        yield return new WaitForSeconds(2);
+        _levelIndicatorObject.text = "";
     }
 }
